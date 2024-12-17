@@ -1,16 +1,26 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./components/Login";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 
-
 function App() {
+    const [token, setToken] = useState(localStorage.getItem("token"));
+
+    useEffect(() => {
+        // Verifica o token no localStorage sempre que mudar
+        const handleStorageChange = () => setToken(localStorage.getItem("token"));
+        window.addEventListener("storage", handleStorageChange);
+
+        return () => window.removeEventListener("storage", handleStorageChange);
+    }, []);
+
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Home/>}>                                  
-                    
-                </Route>
-                <Route path="*" element={<NotFound/>}/>
+                <Route path="/" element={<Login />} />
+                <Route path="/home" element={token ? <Home /> : <Navigate to="/" replace />} />
+                <Route path="*" element={<NotFound />} />
             </Routes>
         </BrowserRouter>
     );
