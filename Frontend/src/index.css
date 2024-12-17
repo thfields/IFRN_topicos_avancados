@@ -1,0 +1,77 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* HOME */
+
+
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f2f5; /* Cor de fundo */
+    color: #000; /* Cor do texto */
+}
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.logo {
+    width: 100%;
+    max-width: 720px; /* Largura máxima da imagem */
+    height: auto;
+}
+
+.cta-container {
+    text-align: center;
+}
+
+.cta-container h2 {
+    font-size: 28px; /* Tamanho do texto do subtítulo */
+    margin-bottom: 20px; /* Espaçamento inferior */
+}
+
+.cta-container p {
+    font-size: 18px; /* Tamanho do texto do parágrafo */
+    margin-bottom: 30px; /* Espaçamento inferior */
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px; /* Espaçamento interno */
+    font-size: 18px; /* Tamanho do texto do botão */
+    color: #fff; /* Cor do texto do botão */
+    background-color: #1890ff; /* Cor de fundo do botão */
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #40a9ff; /* Cor de fundo do botão ao passar o mouse */
+}
+
+
+/* DETAILS */
+
+
+
+.task-details-container {
+  padding: 20px;
+  background-color: #3e4d6c; /* Fundo azul escuro */
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  max-width: 800px;
+
+}
+
+.task-details-title {
+  text-align: center;
+}
