@@ -1,4 +1,7 @@
 import User from '../models/userModel.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
 class UserService {
     async find() {
@@ -17,6 +20,11 @@ class UserService {
         if (!userData.nome || !userData.email || !userData.senha) {
             throw new Error('Os campos nome, email e senha são obrigatórios');
         }
+
+        const hashedPassword = await bcrypt.hash(userData.senha, 10); // Hash da senha
+    
+        userData.senha = hashedPassword;
+
         return await User.create(userData);
     }
 
@@ -57,6 +65,28 @@ class UserService {
 
         await User.deleteOne({ userId: userId });
         return { message: 'Usuário deletado com sucesso', user };
+    }
+
+    async login(email, senha) {
+        const user = await User.findOne({ email });
+        if (!user) {
+            throw new Error('Usuário não encontrado');
+        }
+
+        // Comparar senha com hash no banco
+        const senhaCorreta = await bcrypt.compare(senha, user.senha);
+        if (!senhaCorreta) {
+            throw new Error('Senha incorreta');
+        }
+
+        // Gerar token JWT
+        const token = jwt.sign(
+            { userId: user.userId, email: user.email },
+            process.env.JWT_SECRET, 
+            { expiresIn: '1h' } // Token expira em 1 hora
+        );
+
+        return { token, user: { id: user.userId, nome: user.nome, email: user.email } };
     }
 }
 
