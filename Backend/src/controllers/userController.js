@@ -57,4 +57,15 @@ async function deleteUser(req, res) {
     }
 }
 
-export { getUsers, getUserById, createUser, updateUser, deleteUser };
+async function loginUser(req, res) {
+    const { email, senha } = req.body;
+
+    try {
+        const { token, user } = await UserService.login(email, senha);
+        return res.status(200).json({ message: 'Login bem-sucedido', token, user });
+    } catch (error) {
+        return res.status(401).json({ error: 'Falha no login', details: error.message });
+    }
+}
+
+export { getUsers, getUserById, createUser, updateUser, deleteUser, loginUser };
