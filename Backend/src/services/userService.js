@@ -8,8 +8,8 @@ class UserService {
         return await User.find();
     }
 
-    async findOne(userId) {
-        const user = await User.findOne({userId: userId});
+    async findOne(id) {
+        const user = await User.findOne(id);
         if (!user) {
             throw new Error('User não encontrada');
         }
@@ -28,7 +28,7 @@ class UserService {
         return await User.create(userData);
     }
 
-    async update(userId, updateData) {
+    async update(id, updateData) {
         const allowedUpdates = ['nome', 'email', 'senha'];
         const updates = {};
     
@@ -43,7 +43,7 @@ class UserService {
         }
     
         const updatedUser = await User.findOneAndUpdate(
-            { userId: userId },
+            id,
             updates,
             { new: true }
         );
@@ -56,14 +56,14 @@ class UserService {
     }
     
 
-    async delete(userId) {
-        const user = await User.findOne({ userId: userId });
+    async delete(id) {
+        const user = await User.findOne(id);
 
         if (!user) {
             throw new Error('Usuário não encontrado');
         }
 
-        await User.deleteOne({ userId: userId });
+        await User.deleteOne(id);
         return { message: 'Usuário deletado com sucesso', user };
     }
 
@@ -81,12 +81,12 @@ class UserService {
 
         // Gerar token JWT
         const token = jwt.sign(
-            { userId: user.userId, email: user.email },
+            { id: user.id, email: user.email },
             process.env.JWT_SECRET, 
             { expiresIn: '1h' } // Token expira em 1 hora
         );
 
-        return { token, user: { id: user.userId, nome: user.nome, email: user.email } };
+        return { token, user: { id: user.id, nome: user.nome, email: user.email } };
     }
 }
 

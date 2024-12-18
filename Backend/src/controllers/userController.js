@@ -10,10 +10,10 @@ async function getUsers(_, res) {
 }
 
 async function getUserById(req, res) {
-    const userId = req.params.userId;
+    const id = req.params.id;
 
     try {
-        const user = await UserService.findOne(userId);
+        const user = await UserService.findOne(id);
         return res.status(200).json(user);
     } catch (error) {
         if (error.message === 'User não encontrada') {
@@ -35,11 +35,11 @@ async function createUser(req, res) {
 }
 
 async function updateUser(req, res) {
-    const userId = req.params.userId;
+    const id = req.params.id;
     const updateData = req.body;
 
     try {
-        const updatedUser = await UserService.update(userId, updateData);
+        const updatedUser = await UserService.update(id, updateData);
         return res.status(200).json(updatedUser);
     } catch (error) {
         return res.status(400).json({ error: 'Erro ao atualizar o usuário.', details: error.message });
@@ -47,10 +47,10 @@ async function updateUser(req, res) {
 }
 
 async function deleteUser(req, res) {
-    const userId = req.params.userId;
+    const id = req.params.id;
 
     try {
-        const deletedUser = await UserService.delete(userId);
+        const deletedUser = await UserService.delete(id);
         return res.status(200).json(deletedUser);
     } catch (error) {
         return res.status(400).json({ error: 'Erro ao deletar o usuário.', details: error.message });
