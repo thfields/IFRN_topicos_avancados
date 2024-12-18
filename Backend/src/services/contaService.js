@@ -2,28 +2,37 @@ import Conta from '../models/contaModel.js';
 import bcrypt from 'bcrypt';
 
 class ContaService {
-    async createConta(numero, senha, userId) {
+    async getContasByUser(id) {
+        const contas = await Conta.find({ user: id });
+        if (!contas || contas.length === 0) {
+            throw new Error('Nenhuma conta encontrada para este usuário');
+        }
+        return contas;
+    }
+
+    async createConta(numero, senha, id) {
+        if (!numero || !senha) {
+            throw new Error('Número e senha são obrigatórios');
+        }
+
         const existingConta = await Conta.findOne({ numero });
         if (existingConta) {
             throw new Error('Número de conta já existe');
         }
 
-        // Criptografar a senha antes de salvar
         const hashedPassword = await bcrypt.hash(senha, 10);
-
-        // Criar a conta e associá-la ao usuário
         const newConta = await Conta.create({
-            numero,
+            numero: parseInt(numero, 10),
             saldo: 0,
             senha: hashedPassword,
-            user: userId // Associa a conta ao usuário
+            user: id
         });
 
         return newConta;
     }
 
     async getSaldo(numero) {
-        const conta = await Conta.findOne({ numero });
+        const conta = await Conta.findOne({ numero: parseInt(numero, 10) });
         if (!conta) {
             throw new Error('Conta não encontrada');
         }
@@ -31,7 +40,11 @@ class ContaService {
     }
 
     async creditConta(numero, valor) {
-        const conta = await Conta.findOne({ numero });
+        if (isNaN(valor) || valor <= 0) {
+            throw new Error('Valor inválido para crédito');
+        }
+
+        const conta = await Conta.findOne({ numero: parseInt(numero, 10) });
         if (!conta) {
             throw new Error('Conta não encontrada');
         }
@@ -42,9 +55,17 @@ class ContaService {
     }
 
     async debitConta(numero, valor) {
-        const conta = await Conta.findOne({ numero });
+        if (isNaN(valor) || valor <= 0) {
+            throw new Error('Valor inválido para débito');
+        }
+
+        const conta = await Conta.findOne({ numero: parseInt(numero, 10) });
         if (!conta) {
             throw new Error('Conta não encontrada');
+        }
+
+        if (conta.saldo < valor) {
+            throw new Error('Saldo insuficiente');
         }
 
         conta.saldo -= valor;
@@ -52,25 +73,34 @@ class ContaService {
         return conta;
     }
 
-    async transfer(fromNumero, toNumero, valor) {
-        const fromConta = await Conta.findOne({ numero: fromNumero });
-        const toConta = await Conta.findOne({ numero: toNumero });
-
+    async transfer(numero, paraConta, valor) {
+        if (isNaN(valor) || valor <= 0) {
+            throw new Error('Valor inválido para transferência');
+        }
+    
+        const fromConta = await Conta.findOne({ numero: parseInt(numero, 10) });
+        const toConta = await Conta.findOne({ numero: parseInt(paraConta, 10) });
+    
         if (!fromConta) {
             throw new Error('Conta de origem não encontrada');
         }
         if (!toConta) {
             throw new Error('Conta de destino não encontrada');
         }
-
+    
+        if (fromConta.saldo < valor) {
+            throw new Error('Saldo insuficiente na conta de origem');
+        }
+    
         fromConta.saldo -= valor;
         toConta.saldo += valor;
-
+    
         await fromConta.save();
         await toConta.save();
-
+    
         return { fromConta, toConta };
     }
+    
 }
 
 export default new ContaService();

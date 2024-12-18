@@ -1,12 +1,12 @@
 import bcrypt from 'bcrypt';
 import Conta from '../models/contaModel.js';
 
-
 async function verificarSenhaConta(req, res, next) {
-    const { numero, senha } = req.body;
+    const { senha } = req.body; // Agora apenas busca a senha no body
+    const { numero } = req.params; // Pega o número da conta do parâmetro da URL
 
     // Encontrar a conta
-    const conta = await Conta.findOne({ numero });
+    const conta = await Conta.findOne({ numero: parseInt(numero, 10) });
     if (!conta) {
         return res.status(404).json({ error: 'Conta não encontrada' });
     }
