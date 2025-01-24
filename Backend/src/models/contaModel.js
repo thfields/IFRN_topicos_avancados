@@ -16,7 +16,7 @@ const contaSchema = new mongoose.Schema({
     },
     tipo: {
         type: String,
-        enum: ['Comum', 'Bonus'],
+        enum: ['Comum', 'Bonus', 'Poupanca'],
         default: 'Comum'
     },
     pontuacao: {

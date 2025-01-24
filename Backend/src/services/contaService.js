@@ -114,6 +114,27 @@ class ContaService {
     
         return { fromConta, toConta };
     }
+
+    async renderJuros(numero, taxa) {
+        if (isNaN(taxa) || taxa <= 0) {
+            throw new Error('Taxa de juros inválida');
+        }
+
+        const conta = await Conta.findOne({ numero: parseInt(numero, 10) });
+        if (!conta) {
+            throw new Error('Conta não encontrada');
+        }
+
+        if (conta.tipo !== 'Poupanca') {
+            throw new Error('Operação permitida apenas para contas do tipo Poupança');
+        }
+
+        const juros = conta.saldo * (taxa / 100);
+        conta.saldo += juros;
+
+        await conta.save();
+        return conta;
+    }
     
 }
 
