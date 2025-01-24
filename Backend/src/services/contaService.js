@@ -10,7 +10,7 @@ class ContaService {
         return contas;
     }
 
-    async createConta(numero, senha, id) {
+    async createConta(numero, senha, id, tipo = 'Comum') {
         if (!numero || !senha) {
             throw new Error('Número e senha são obrigatórios');
         }
@@ -25,8 +25,13 @@ class ContaService {
             numero: parseInt(numero, 10),
             saldo: 0,
             senha: hashedPassword,
-            user: id
+            user: id,
+            tipo
         });
+
+        if (tipo === 'Bonus') {
+            novaConta.pontuacao = 10;
+        }   
 
         return newConta;
     }
@@ -50,6 +55,11 @@ class ContaService {
         }
 
         conta.saldo += valor;
+
+        if (conta.tipo === 'Bonus') {
+            conta.pontuacao += Math.floor(valor / 100); // Regra: 1 ponto para cada R$100
+        }
+
         await conta.save();
         return conta;
     }
@@ -94,11 +104,36 @@ class ContaService {
     
         fromConta.saldo -= valor;
         toConta.saldo += valor;
+
+        if (toConta.tipo === 'Bonus') {
+            toConta.pontuacao += Math.floor(valor / 200); // Regra: 1 ponto para cada R$200
+        }
     
         await fromConta.save();
         await toConta.save();
     
         return { fromConta, toConta };
+    }
+
+    async renderJuros(numero, taxa) {
+        if (isNaN(taxa) || taxa <= 0) {
+            throw new Error('Taxa de juros inválida');
+        }
+
+        const conta = await Conta.findOne({ numero: parseInt(numero, 10) });
+        if (!conta) {
+            throw new Error('Conta não encontrada');
+        }
+
+        if (conta.tipo !== 'Poupanca') {
+            throw new Error('Operação permitida apenas para contas do tipo Poupança');
+        }
+
+        const juros = conta.saldo * (taxa / 100);
+        conta.saldo += juros;
+
+        await conta.save();
+        return conta;
     }
     
 }

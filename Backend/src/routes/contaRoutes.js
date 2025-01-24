@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createConta, getSaldo, creditConta, debitConta, transfer, getContas } from '../controllers/contaController.js';
+import { createConta, getSaldo, creditConta, debitConta, transfer, getContas, renderJuros } from '../controllers/contaController.js';
 import verificarSenhaConta from '../Middleware/contaMiddleware.js';
 import authMiddleware from '../Middleware/authMiddleware.js';
 
@@ -11,5 +11,6 @@ contaRoutes.get('/conta/:numero/saldo', authMiddleware, getSaldo);
 contaRoutes.put('/conta/:numero/credito', authMiddleware, verificarSenhaConta, creditConta);
 contaRoutes.put('/conta/:numero/debito', authMiddleware, verificarSenhaConta, debitConta);
 contaRoutes.post('/conta/:numero/transfer', authMiddleware, verificarSenhaConta, transfer);
+contaRoutes.post('/conta/juros/:numero', authMiddleware, renderJuros);
 
 export default contaRoutes;

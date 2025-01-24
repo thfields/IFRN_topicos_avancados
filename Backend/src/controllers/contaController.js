@@ -2,7 +2,7 @@ import ContaService from '../services/contaService.js';
 
 // Controladores
 async function createConta(req, res) {
-    const { numero, senha } = req.body;
+    const { numero, senha, tipo } = req.body;
     const id = req.user.id; 
 
     try {
@@ -93,5 +93,19 @@ async function transfer(req, res) {
     }
 }
 
+async function renderJuros(req, res) {
+    const { numero } = req.params; // Número da conta
+    const { taxa } = req.body; // Taxa de juros
 
-export { createConta, getSaldo, creditConta, debitConta, transfer, getContas };
+    try {
+        const updatedConta = await ContaService.renderJuros(numero, parseFloat(taxa));
+        return res.status(200).json(updatedConta);
+    } catch (error) {
+        console.error('Erro ao render juros:', error);
+        return res.status(400).json({ error: error.message });
+    }
+}
+
+
+
+export { createConta, getSaldo, creditConta, debitConta, transfer, getContas, renderJuros };
