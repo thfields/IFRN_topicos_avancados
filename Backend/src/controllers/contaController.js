@@ -2,7 +2,7 @@ import ContaService from '../services/contaService.js';
 
 // Controladores
 async function createConta(req, res) {
-    const { numero, senha } = req.body;
+    const { numero, senha, tipo } = req.body;
     const id = req.user.id; 
 
     try {

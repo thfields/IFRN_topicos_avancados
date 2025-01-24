@@ -10,7 +10,7 @@ class ContaService {
         return contas;
     }
 
-    async createConta(numero, senha, id) {
+    async createConta(numero, senha, id, tipo = 'Comum') {
         if (!numero || !senha) {
             throw new Error('Número e senha são obrigatórios');
         }
@@ -25,8 +25,13 @@ class ContaService {
             numero: parseInt(numero, 10),
             saldo: 0,
             senha: hashedPassword,
-            user: id
+            user: id,
+            tipo
         });
+
+        if (tipo === 'Bonus') {
+            novaConta.pontuacao = 10;
+        }   
 
         return newConta;
     }
@@ -50,6 +55,11 @@ class ContaService {
         }
 
         conta.saldo += valor;
+
+        if (conta.tipo === 'Bonus') {
+            conta.pontuacao += Math.floor(valor / 100); // Regra: 1 ponto para cada R$100
+        }
+
         await conta.save();
         return conta;
     }
@@ -94,6 +104,10 @@ class ContaService {
     
         fromConta.saldo -= valor;
         toConta.saldo += valor;
+
+        if (toConta.tipo === 'Bonus') {
+            toConta.pontuacao += Math.floor(valor / 200); // Regra: 1 ponto para cada R$200
+        }
     
         await fromConta.save();
         await toConta.save();
