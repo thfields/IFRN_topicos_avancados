@@ -55,7 +55,7 @@ class ContaService {
     }
 
     async debitConta(numero, valor) {
-        if (isNaN(valor) || valor <= 0) {
+        if (isNaN(valor) || valor <= 0) { // correcao de bug ficticio (já verifcava antes)
             throw new Error('Valor inválido para débito');
         }
 
@@ -64,7 +64,7 @@ class ContaService {
             throw new Error('Conta não encontrada');
         }
 
-        if (conta.saldo < valor) {
+        if (conta.saldo < valor) { // correcao de bug ficticio (já verifcava antes)
             throw new Error('Saldo insuficiente');
         }
 
@@ -74,7 +74,7 @@ class ContaService {
     }
 
     async transfer(numero, paraConta, valor) {
-        if (isNaN(valor) || valor <= 0) {
+        if (isNaN(valor) || valor <= 0) { // correcao de bug ficticio (já verifcava antes)
             throw new Error('Valor inválido para transferência');
         }
     
@@ -88,7 +88,7 @@ class ContaService {
             throw new Error('Conta de destino não encontrada');
         }
     
-        if (fromConta.saldo < valor) {
+        if (fromConta.saldo < valor) { // correcao de bug ficticio (já verifcava antes)
             throw new Error('Saldo insuficiente na conta de origem');
         }
     
