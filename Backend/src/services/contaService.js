@@ -10,9 +10,9 @@ class ContaService {
         return contas;
     }
 
-    async createConta(numero, senha, id) {
-        if (!numero || !senha) {
-            throw new Error('Número e senha são obrigatórios');
+    async createConta(numero, senha, id, saldoInicial,tipo = 'Comum') {
+        if (!numero || !senha || saldoInicial===0) {
+            throw new Error('Número, senha e saldo inicial são obrigatórios');
         }
 
         const existingConta = await Conta.findOne({ numero });
@@ -25,8 +25,13 @@ class ContaService {
             numero: parseInt(numero, 10),
             saldo: 0,
             senha: hashedPassword,
-            user: id
+            user: id,
+            tipo
         });
+
+        if (tipo === 'Bonus') {
+            novaConta.pontuacao = 10;
+        }   
 
         return newConta;
     }
@@ -50,12 +55,17 @@ class ContaService {
         }
 
         conta.saldo += valor;
+
+        if (conta.tipo === 'Bonus') {
+            conta.pontuacao += Math.floor(valor / 100); // Regra: 1 ponto para cada R$100
+        }
+
         await conta.save();
         return conta;
     }
 
     async debitConta(numero, valor) {
-        if (isNaN(valor) || valor <= 0) { // correcao de bug ficticio (já verifcava antes)
+        if (isNaN(valor) || valor <= 0) {
             throw new Error('Valor inválido para débito');
         }
 
@@ -64,7 +74,7 @@ class ContaService {
             throw new Error('Conta não encontrada');
         }
 
-        if (conta.saldo < valor) { // correcao de bug ficticio (já verifcava antes)
+        if (conta.saldo < valor) {
             throw new Error('Saldo insuficiente');
         }
 
@@ -74,7 +84,7 @@ class ContaService {
     }
 
     async transfer(numero, paraConta, valor) {
-        if (isNaN(valor) || valor <= 0) { // correcao de bug ficticio (já verifcava antes)
+        if (isNaN(valor) || valor <= 0) {
             throw new Error('Valor inválido para transferência');
         }
     
@@ -88,17 +98,42 @@ class ContaService {
             throw new Error('Conta de destino não encontrada');
         }
     
-        if (fromConta.saldo < valor) { // correcao de bug ficticio (já verifcava antes)
+        if (fromConta.saldo < valor) {
             throw new Error('Saldo insuficiente na conta de origem');
         }
     
         fromConta.saldo -= valor;
         toConta.saldo += valor;
+
+        if (toConta.tipo === 'Bonus') {
+            toConta.pontuacao += Math.floor(valor / 200); // Regra: 1 ponto para cada R$200
+        }
     
         await fromConta.save();
         await toConta.save();
     
         return { fromConta, toConta };
+    }
+
+    async renderJuros(numero, taxa) {
+        if (isNaN(taxa) || taxa <= 0) {
+            throw new Error('Taxa de juros inválida');
+        }
+
+        const conta = await Conta.findOne({ numero: parseInt(numero, 10) });
+        if (!conta) {
+            throw new Error('Conta não encontrada');
+        }
+
+        if (conta.tipo !== 'Poupanca') {
+            throw new Error('Operação permitida apenas para contas do tipo Poupança');
+        }
+
+        const juros = conta.saldo * (taxa / 100);
+        conta.saldo += juros;
+
+        await conta.save();
+        return conta;
     }
     
 }
