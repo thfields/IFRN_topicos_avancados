@@ -106,7 +106,7 @@ class ContaService {
         toConta.saldo += valor;
 
         if (toConta.tipo === 'Bonus') {
-            toConta.pontuacao += Math.floor(valor / 200); // Regra: 1 ponto para cada R$200
+            toConta.pontuacao += Math.floor(valor / 150); // Nova Regra: 1 ponto para cada R$150
         }
     
         await fromConta.save();
