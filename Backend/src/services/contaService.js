@@ -1,4 +1,4 @@
-import Conta from '../models/contaModel.js';
+import Conta from '../models/contaModel.js'; 
 import bcrypt from 'bcrypt';
 
 class ContaService {
@@ -21,17 +21,24 @@ class ContaService {
         }
 
         const hashedPassword = await bcrypt.hash(senha, 10);
+
+        // Verificar saldo inicial para contas Poupança
+        let saldoInicial = 0;
+        if (tipo === 'Poupanca') {
+            saldoInicial = 0; // Inicialmente 0, mas exigirá saldo positivo na criação
+        }
+
         const newConta = await Conta.create({
             numero: parseInt(numero, 10),
-            saldo: 0,
+            saldo: saldoInicial,
             senha: hashedPassword,
             user: id,
             tipo
         });
 
         if (tipo === 'Bonus') {
-            novaConta.pontuacao = 10;
-        }   
+            newConta.pontuacao = 10;
+        }
 
         return newConta;
     }
@@ -74,8 +81,15 @@ class ContaService {
             throw new Error('Conta não encontrada');
         }
 
-        if (conta.saldo < valor) {
-            throw new Error('Saldo insuficiente');
+        // Verificar se o saldo é suficiente, considerando o limite para contas Simples e Bônus
+        if (conta.tipo === 'Simples' || conta.tipo === 'Bonus') {
+            if (conta.saldo - valor < -1000) {
+                throw new Error('Saldo insuficiente (limite de R$ -1.000,00 para contas Simples e Bônus)');
+            }
+        } else {
+            if (conta.saldo < valor) {
+                throw new Error('Saldo insuficiente');
+            }
         }
 
         conta.saldo -= valor;
@@ -87,31 +101,38 @@ class ContaService {
         if (isNaN(valor) || valor <= 0) {
             throw new Error('Valor inválido para transferência');
         }
-    
+
         const fromConta = await Conta.findOne({ numero: parseInt(numero, 10) });
         const toConta = await Conta.findOne({ numero: parseInt(paraConta, 10) });
-    
+
         if (!fromConta) {
             throw new Error('Conta de origem não encontrada');
         }
         if (!toConta) {
             throw new Error('Conta de destino não encontrada');
         }
-    
-        if (fromConta.saldo < valor) {
-            throw new Error('Saldo insuficiente na conta de origem');
+
+        // Verificar saldo na conta de origem
+        if (fromConta.tipo === 'Simples' || fromConta.tipo === 'Bonus') {
+            if (fromConta.saldo - valor < -1000) {
+                throw new Error('Saldo insuficiente na conta de origem (limite de R$ -1.000,00 para contas Simples e Bônus)');
+            }
+        } else {
+            if (fromConta.saldo < valor) {
+                throw new Error('Saldo insuficiente na conta de origem');
+            }
         }
-    
+
         fromConta.saldo -= valor;
         toConta.saldo += valor;
 
         if (toConta.tipo === 'Bonus') {
             toConta.pontuacao += Math.floor(valor / 200); // Regra: 1 ponto para cada R$200
         }
-    
+
         await fromConta.save();
         await toConta.save();
-    
+
         return { fromConta, toConta };
     }
 
@@ -135,7 +156,6 @@ class ContaService {
         await conta.save();
         return conta;
     }
-    
 }
 
 export default new ContaService();
