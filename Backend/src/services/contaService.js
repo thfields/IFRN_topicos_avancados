@@ -10,9 +10,10 @@ class ContaService {
         return contas;
     }
 
-    async createConta(numero, senha, id, tipo = 'Comum') {
-        if (!numero || !senha) {
-            throw new Error('Número e senha são obrigatórios');
+
+    async createConta(numero, senha, id, saldoInicial,tipo = 'Comum') {
+        if (!numero || !senha || saldoInicial===0) {
+            throw new Error('Número, senha e saldo inicial são obrigatórios');
         }
 
         const existingConta = await Conta.findOne({ numero });
