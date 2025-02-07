@@ -14,10 +14,18 @@ const contaSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // Referência ao usuário
+    tipo: {
+        type: String,
+        enum: ['Comum', 'Bonus', 'Poupanca'],
+        default: 'Comum'
+    },
+    pontuacao: {
+        type: Number,
+        default: 0
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Refere-se ao modelo User
+        ref: 'User',
         required: true
     }
 });
