@@ -16,12 +16,10 @@ const contaSchema = new mongoose.Schema({
     },
     tipo: {
         type: String,
-        enum: ['Comum', 'Bonus', 'Poupanca'],
-        default: 'Comum'
+        enum: ['Comum', 'Bonus', 'Poupanca']
     },
     pontuacao: {
-        type: Number,
-        default: 0
+        type: Number
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,

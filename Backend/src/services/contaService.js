@@ -14,6 +14,7 @@ class ContaService {
     async createConta(numero, senha, id, saldoInicial,tipo = 'Comum') {
         if (!numero || !senha || saldoInicial===0) {
             throw new Error('Número, senha e saldo inicial são obrigatórios');
+
         }
 
         const existingConta = await Conta.findOne({ numero });
@@ -27,12 +28,9 @@ class ContaService {
             saldo: 0,
             senha: hashedPassword,
             user: id,
-            tipo
+            tipo: tipo,
+            pontuacao: tipo === 'Bonus' ? 10 : 0
         });
-
-        if (tipo === 'Bonus') {
-            novaConta.pontuacao = 10;
-        }   
 
         return newConta;
     }
@@ -46,7 +44,7 @@ class ContaService {
     }
 
     async creditConta(numero, valor) {
-        if (isNaN(valor) || valor <= 0) {
+        if (valor <= 0) {
             throw new Error('Valor inválido para crédito');
         }
 
@@ -57,7 +55,11 @@ class ContaService {
 
         conta.saldo += valor;
 
-        if (conta.tipo === 'Bonus') {
+        if (conta.tipo === "Bonus") {
+            // Inicializa pontuacao como 0 se for undefined ou null
+            if (!conta.pontuacao || isNaN(conta.pontuacao)) {
+                conta.pontuacao = 0;
+            }
             conta.pontuacao += Math.floor(valor / 100); // Regra: 1 ponto para cada R$100
         }
 
@@ -126,7 +128,7 @@ class ContaService {
             throw new Error('Conta não encontrada');
         }
 
-        if (conta.tipo !== 'Poupanca') {
+        if (conta.tipo !== "Poupanca") {
             throw new Error('Operação permitida apenas para contas do tipo Poupança');
         }
 
