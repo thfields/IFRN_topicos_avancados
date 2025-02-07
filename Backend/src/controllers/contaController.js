@@ -6,7 +6,7 @@ async function createConta(req, res) {
     const id = req.user.id; 
 
     try {
-        const newConta = await ContaService.createConta(numero, senha, id);
+        const newConta = await ContaService.createConta(numero, senha, id, tipo);
         return res.status(201).json(newConta);
     } catch (error) {
         console.error('Erro ao criar conta:', error);
@@ -41,6 +41,16 @@ async function getSaldo(req, res) {
 async function creditConta(req, res) {
     const { numero } = req.params;
     const { valor } = req.body;
+
+      // Validação básica dos parâmetros
+    if (!numero || isNaN(parseInt(numero, 10))) {
+        return res.status(400).json({ error: 'Número da conta inválido ou não fornecido.' });
+    }
+
+    if (!valor || isNaN(parseFloat(valor))) {
+        return res.status(400).json({ error: 'Valor inválido ou não fornecido.' });
+    }
+
 
     try {
         const updatedConta = await ContaService.creditConta(numero, parseFloat(valor));
