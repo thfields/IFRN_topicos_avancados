@@ -1,0 +1,48 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Passo 2: Configurar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # Passo 3: Instalar dependências
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: ./Backend
+
+      # Passo 4: Executar testes unitários
+      - name: Run unit tests
+        run: pnpm test
+        working-directory: ./Backend
+
+      # Passo 5: Buildar a aplicação com Docker
+      - name: Build Docker image
+        run: docker build -t sybank-backend ./Backend
+
+      # Passo 6: Rodar a aplicação em um container e testar (opcional)
+      - name: Run Docker container
+        run: docker run -d -p 3000:3000 --name sybank-backend sybank-backend
+
+      # Passo 7: Verificar se a aplicação está rodando (opcional)
+      - name: Check application health
+        run: |
+          sleep 5  # Espera a aplicação iniciar
+          curl -f http://localhost:3000/banco/conta/ || exit 1
