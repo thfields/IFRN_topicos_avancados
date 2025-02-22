@@ -23,26 +23,36 @@ jobs:
         with:
           node-version: 20
 
-      # Passo 3: Instalar dependências
+      # Passo 3: Instalar pnpm globalmente
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # Passo 4: Instalar dependências
       - name: Install dependencies
         run: pnpm install
         working-directory: ./Backend
 
-      # Passo 4: Executar testes unitários
+      # Passo 5: Executar testes unitários
       - name: Run unit tests
         run: pnpm test
         working-directory: ./Backend
 
-      # Passo 5: Buildar a aplicação com Docker
+      # Passo 6: Buildar a aplicação com Docker
       - name: Build Docker image
-        run: docker build -t sybank-backend ./Backend
+        run: docker build -t sybank-backend:${{ github.sha }} ./Backend
 
-      # Passo 6: Rodar a aplicação em um container e testar (opcional)
+      # Passo 7: Rodar a aplicação em um container e testar
       - name: Run Docker container
-        run: docker run -d -p 3000:3000 --name sybank-backend sybank-backend
+        run: docker run -d -p 3000:3000 --name sybank-backend sybank-backend:${{ github.sha }}
 
-      # Passo 7: Verificar se a aplicação está rodando (opcional)
+      # Passo 8: Verificar se a aplicação está rodando
       - name: Check application health
         run: |
-          sleep 5  # Espera a aplicação iniciar
+          sleep 10  # Espera a aplicação iniciar
           curl -f http://localhost:3000/banco/conta/ || exit 1
+
+      # Passo 9: Parar e remover o container
+      - name: Stop and remove container
+        run: |
+          docker stop sybank-backend
+          docker rm sybank-backend
