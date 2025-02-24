@@ -22,8 +22,12 @@ jobs:
         run: npm install -g pnpm
 
       # Passo 4: Instalar dependências
-      - name: Install dependencies
+      - name: Install dependencies PNPM
         run: pnpm install
+        working-directory: ./Backend
+
+      - name: Install dependencies NPM
+        run: npm i
         working-directory: ./Backend
 
       # Passo 5: Executar testes unitários
