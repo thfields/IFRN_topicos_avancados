@@ -46,7 +46,7 @@ jobs:
       # Passo 8: Verificar se a aplicação está rodando
       - name: Check application health
         run: |
-          sleep 10000  # Espera a aplicação iniciar
+          sleep 15  # Espera a aplicação iniciar
           curl -f http://localhost:3000/banco/conta/ || exit 1
 
       # Passo 9: Parar e remover o container
