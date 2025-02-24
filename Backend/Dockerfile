@@ -10,7 +10,7 @@ RUN npm install -g pnpm
 # Copiar apenas os arquivos de dependência primeiro para aproveitar o cache
 COPY package.json pnpm-lock.yaml ./
 
-# Instalar as dependências
+# Instalar as dependências dentro do container
 RUN pnpm install
 
 # Copiar o restante do código da aplicação
