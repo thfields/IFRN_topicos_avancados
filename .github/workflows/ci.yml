@@ -47,7 +47,7 @@ jobs:
       - name: Check application health
         run: |
           for i in {1..30}; do
-            if curl -f http://localhost:3000/banco/conta/; then
+            if curl -f http://localhost:3000; then
               echo "Application is up and running!"
               exit 0
             fi
