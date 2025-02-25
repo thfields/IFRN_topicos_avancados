@@ -39,15 +39,23 @@ jobs:
       - name: Build Docker image
         run: docker build -t sybank-backend:${{ github.sha }} ./Backend
 
-      # Passo 7: Rodar a aplicação em um container e testar
+      # Passo 7: Rodar a aplicação em um container
       - name: Run Docker container
         run: docker run -d -p 3000:3000 --name sybank-backend sybank-backend:${{ github.sha }}
 
       # Passo 8: Verificar se a aplicação está rodando
       - name: Check application health
         run: |
-          sleep 30  # Espera a aplicação iniciar
-          curl -f http://localhost:3000/banco/conta/ || exit 1
+          for i in {1..30}; do
+            if curl -f http://localhost:3000/banco/conta/; then
+              echo "Application is up and running!"
+              exit 0
+            fi
+            echo "Waiting for application to be ready..."
+            sleep 10
+          done
+          echo "Application did not start in time!"
+          exit 1
 
       # Passo 9: Parar e remover o container
       - name: Stop and remove container
