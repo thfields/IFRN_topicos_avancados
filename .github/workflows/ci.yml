@@ -50,16 +50,12 @@ jobs:
       # Passo 7: Rodar a aplicação em um container
       - name: Run Docker container
         run: |
-          docker run -d -p 8080:8080 --name sybank-backend \
-            -e URL_DATABASE="${{ secrets.URL_DATABASE }}" \
-            -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
-            -e PORT=8080 \
-            sybank-backend:${{ github.sha }}
+          docker-compose up -d
           sleep 20  # Aumentado para 20 segundos
 
       # Passo 7.1: Exibir logs do container
       - name: Show container logs
-        run: docker logs sybank-backend
+        run: docker logs backend-backend-1
 
       # Passo 7.2: Verificar se o container está rodando
       - name: Check container status
@@ -77,5 +73,4 @@ jobs:
       - name: Stop and remove container
         if: always()  # Executa sempre, mesmo se o passo anterior falhar
         run: |
-          docker stop sybank-backend || true
-          docker rm sybank-backend || true
+          docker-compose down
