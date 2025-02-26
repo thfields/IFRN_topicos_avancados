@@ -39,6 +39,9 @@ jobs:
       - name: Run unit tests
         run: pnpm test
         working-directory: ./Backend
+        env:
+          URL_DATABASE: ${{ secrets.URL_DATABASE }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       # Passo 6: Buildar a aplicação com Docker
       - name: Build Docker image
@@ -47,7 +50,11 @@ jobs:
       # Passo 7: Rodar a aplicação em um container
       - name: Run Docker container
         run: |
-          docker run -d -p 8080:8080 --name sybank-backend sybank-backend:${{ github.sha }}
+          docker run -d -p 8080:8080 --name sybank-backend \
+            -e URL_DATABASE="${{ secrets.URL_DATABASE }}" \
+            -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+            -e PORT=8080 \
+            sybank-backend:${{ github.sha }}
           sleep 20  # Aumentado para 20 segundos
 
       # Passo 7.1: Exibir logs do container
@@ -61,7 +68,7 @@ jobs:
       # Passo 8: Verificar se a aplicação está rodando
       - name: Check application health
         run: |
-          until docker exec sybank-backend curl -s http://localhost:8080; do
+          until curl -s http://localhost:8080; do
             echo "Aguardando backend iniciar..."
             sleep 5
           done
