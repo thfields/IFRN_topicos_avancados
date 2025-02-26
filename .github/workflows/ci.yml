@@ -49,6 +49,7 @@ jobs:
 
       # Passo 7: Rodar a aplicação em um container
       - name: Run Docker container
+        working-directory: ./Backend
         run: |
           docker compose up -d
           sleep 20  # Aumentado para 20 segundos
@@ -72,5 +73,6 @@ jobs:
       # Passo 9: Parar e remover o container (mesmo em caso de falha)
       - name: Stop and remove container
         if: always()  # Executa sempre, mesmo se o passo anterior falhar
+        working-directory: ./Backend
         run: |
           docker compose down
