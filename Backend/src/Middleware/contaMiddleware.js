@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import Conta from '../models/contaModel.js';
 
 async function verificarSenhaConta(req, res, next) {
