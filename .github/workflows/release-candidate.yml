@@ -1,0 +1,54 @@
+name: Release Candidate Pipeline
+
+on:
+  push:
+    tags:
+      - 'rc-*'  # Aciona o workflow quando uma tag no formato rc-X.Y é criada
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Passo 2: Configurar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # Passo 3: Instalar pnpm globalmente
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # Passo 4: Instalar dependências
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: ./Backend
+
+      # Passo 5: Executar análise estática de código (ESLint)
+      - name: Run ESLint
+        run: pnpm lint
+        working-directory: ./Backend
+
+      # Passo 6: Executar testes unitários
+      - name: Run unit tests
+        run: pnpm test
+        working-directory: ./Backend
+
+      # Passo 7: Gerar pacote da versão (zip)
+      - name: Create release package
+        run: |
+          mkdir -p dist
+          zip -r dist/sybank-backend-${{ github.ref_name }}.zip . -x "node_modules/*" -x ".git/*"
+        working-directory: ./Backend
+
+      # Passo 8: Disponibilizar o pacote para download
+      - name: Upload release package
+        uses: actions/upload-artifact@v3
+        with:
+          name: sybank-backend-${{ github.ref_name }}
+          path: ./Backend/dist/sybank-backend-${{ github.ref_name }}.zip
