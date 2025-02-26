@@ -48,12 +48,20 @@ jobs:
       - name: Run Docker container
         run: |
           docker run -d -p 8080:8080 --name sybank-backend sybank-backend:${{ github.sha }}
-          sleep 10  # Aguarda o container iniciar
+          sleep 20  # Aumentado para 20 segundos
+
+      # Passo 7.1: Exibir logs do container
+      - name: Show container logs
+        run: docker logs sybank-backend
+
+      # Passo 7.2: Verificar se o container está rodando
+      - name: Check container status
+        run: docker ps -a
 
       # Passo 8: Verificar se a aplicação está rodando
       - name: Check application health
         run: |
-          until curl -s http://localhost:8080; do
+          until docker exec sybank-backend curl -s http://localhost:8080; do
             echo "Aguardando backend iniciar..."
             sleep 5
           done
