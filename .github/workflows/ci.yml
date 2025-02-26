@@ -50,7 +50,7 @@ jobs:
       # Passo 7: Rodar a aplicação em um container
       - name: Run Docker container
         run: |
-          docker-compose up -d
+          docker compose up -d
           sleep 20  # Aumentado para 20 segundos
 
       # Passo 7.1: Exibir logs do container
@@ -73,4 +73,4 @@ jobs:
       - name: Stop and remove container
         if: always()  # Executa sempre, mesmo se o passo anterior falhar
         run: |
-          docker-compose down
+          docker compose down
