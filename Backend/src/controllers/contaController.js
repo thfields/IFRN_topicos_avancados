@@ -75,27 +75,15 @@ async function debitConta(req, res) {
 }
 
 async function transfer(req, res) {
-    const { paraConta, valor } = req.body; // `paraConta` vem do corpo da requisição
-    const { numero } = req.params; // `numero` vem da URL
+    const { from, to, amount } = req.body; // Dados da transferência
 
     try {
-        // Valide e converta os valores
-        if (!numero || isNaN(numero)) {
-            throw new Error('Número da conta de origem inválido');
-        }
-        if (!paraConta || isNaN(paraConta)) {
-            throw new Error('Número da conta de destino inválido');
-        }
-        if (!valor || isNaN(valor) || valor <= 0) {
-            throw new Error('Valor de transferência inválido');
+        // Validação dos dados
+        if (!from || !to || !amount || isNaN(amount) || amount <= 0) {
+            throw new Error('Dados de transferência inválidos');
         }
 
-        // Chamada ao serviço com valores convertidos
-        const result = await ContaService.transfer(
-            parseInt(numero, 10),
-            parseInt(paraConta, 10),
-            parseFloat(valor)
-        );
+        const result = await ContaService.transfer(from, to, parseFloat(amount));
         return res.status(200).json(result);
     } catch (error) {
         console.error('Erro na transferência:', error.message);
@@ -104,18 +92,29 @@ async function transfer(req, res) {
 }
 
 async function renderJuros(req, res) {
-    const { numero } = req.params; // Número da conta
     const { taxa } = req.body; // Taxa de juros
 
     try {
-        const updatedConta = await ContaService.renderJuros(numero, parseFloat(taxa));
-        return res.status(200).json(updatedConta);
+        const contasAtualizadas = await ContaService.renderJuros(parseFloat(taxa));
+        return res.status(200).json(contasAtualizadas);
     } catch (error) {
         console.error('Erro ao render juros:', error);
         return res.status(400).json({ error: error.message });
     }
 }
 
+async function getContaByNumero(req, res) {
+    const { numero } = req.params;
+
+    try {
+        const conta = await ContaService.getContaByNumero(numero);
+        return res.status(200).json(conta);
+    } catch (error) {
+        console.error('Erro ao buscar conta:', error);
+        return res.status(404).json({ error: error.message });
+    }
+}
 
 
-export { createConta, getSaldo, creditConta, debitConta, transfer, getContas, renderJuros };
+
+export { createConta, getSaldo, creditConta, debitConta, transfer, getContas, renderJuros, getContaByNumero };
