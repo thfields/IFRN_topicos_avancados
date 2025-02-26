@@ -1,5 +1,5 @@
 import Conta from '../models/contaModel.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 class ContaService {
     async getContasByUser(id) {

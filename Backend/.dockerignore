@@ -1,0 +1,36 @@
+# Ignorar node_modules, pois as dependências serão instaladas dentro do container
+node_modules/
+
+# Ignorar arquivos de log
+*.log
+
+# Ignorar arquivos temporários
+*.tmp
+
+# Ignorar arquivos do editor (ex: VSCode, IntelliJ, etc.)
+.vscode/
+.idea/
+
+# Ignorar arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignorar arquivos de dependências específicas de ambiente
+pnpm-lock.yaml
+package-lock.json
+
+# Ignorar pastas ou arquivos de compilação ou cache
+dist/
+build/
+*.tgz
+.cache/
+
+# Ignorar arquivos de testes (se não for necessário para o build)
+test/
+tests/
+coverage/
+
+# Ignorar arquivos de backups ou arquivos pessoais
+*.bak
+*.swp
+*.swo
