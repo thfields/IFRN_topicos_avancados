@@ -17,7 +17,7 @@ RUN pnpm install
 COPY . .
 
 # Expor a porta que a aplicação vai rodar (ajuste conforme necessário)
-EXPOSE 3000
+EXPOSE 8080
 
 # Comando para rodar a aplicação
 CMD ["node", "server.js"]
