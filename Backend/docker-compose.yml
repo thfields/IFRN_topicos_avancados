@@ -11,3 +11,4 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 10s
       retries: 5
+      
