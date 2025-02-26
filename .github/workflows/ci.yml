@@ -1,7 +1,7 @@
 name: CI Pipeline
 
 on: push
-  
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -21,13 +21,9 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
-      # Passo 4: Instalar dependências
-      - name: Install dependencies PNPM
+      # Passo 4: Instalar dependências com pnpm
+      - name: Install dependencies
         run: pnpm install
-        working-directory: ./Backend
-
-      - name: Install dependencies NPM
-        run: npm i
         working-directory: ./Backend
 
       # Passo 5: Executar testes unitários
@@ -39,19 +35,23 @@ jobs:
       - name: Build Docker image
         run: docker build -t sybank-backend:${{ github.sha }} ./Backend
 
-      # Passo 7: Rodar a aplicação em um container e testar
+      # Passo 7: Rodar a aplicação em um container
       - name: Run Docker container
-        run: docker run -d -p 3000:3000 --name sybank-backend sybank-backend:${{ github.sha }}
+        run: |
+          docker run -d -p 3000:3000 --name sybank-backend sybank-backend:${{ github.sha }}
+          sleep 10  # Aguarda o container iniciar
 
       # Passo 8: Verificar se a aplicação está rodando
       - name: Check application health
         run: |
           until curl -s http://localhost:3000; do
-          echo "Aguardando backend iniciar..."
-          sleep 5
+            echo "Aguardando backend iniciar..."
+            sleep 5
           done
-      # Passo 9: Parar e remover o container
+
+      # Passo 9: Parar e remover o container (mesmo em caso de falha)
       - name: Stop and remove container
+        if: always()  # Executa sempre, mesmo se o passo anterior falhar
         run: |
-          docker stop sybank-backend
-          docker rm sybank-backend
+          docker stop sybank-backend || true
+          docker rm sybank-backend || true
