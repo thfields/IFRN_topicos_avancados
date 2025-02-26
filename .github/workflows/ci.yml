@@ -9,7 +9,7 @@ jobs:
     steps:
       # Passo 1: Checkout do código
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Passo 2: Configurar Node.js
       - name: Set up Node.js
@@ -39,6 +39,9 @@ jobs:
       - name: Run unit tests
         run: pnpm test
         working-directory: ./Backend
+        env:
+          URL_DATABASE: ${{ secrets.URL_DATABASE }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
       # Passo 6: Buildar a aplicação com Docker
       - name: Build Docker image
@@ -46,14 +49,23 @@ jobs:
 
       # Passo 7: Rodar a aplicação em um container
       - name: Run Docker container
+        working-directory: ./Backend
         run: |
-          docker run -d -p 3000:3000 --name sybank-backend sybank-backend:${{ github.sha }}
-          sleep 10  # Aguarda o container iniciar
+          docker compose up -d
+          sleep 20  # Aumentado para 20 segundos
+
+      # Passo 7.1: Exibir logs do container
+      - name: Show container logs
+        run: docker logs backend-backend-1
+
+      # Passo 7.2: Verificar se o container está rodando
+      - name: Check container status
+        run: docker ps -a
 
       # Passo 8: Verificar se a aplicação está rodando
       - name: Check application health
         run: |
-          until curl -s http://localhost:3000; do
+          until curl -s http://localhost:8080; do
             echo "Aguardando backend iniciar..."
             sleep 5
           done
@@ -61,6 +73,6 @@ jobs:
       # Passo 9: Parar e remover o container (mesmo em caso de falha)
       - name: Stop and remove container
         if: always()  # Executa sempre, mesmo se o passo anterior falhar
+        working-directory: ./Backend
         run: |
-          docker stop sybank-backend || true
-          docker rm sybank-backend || true
+          docker compose down
