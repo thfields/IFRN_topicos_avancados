@@ -4,6 +4,7 @@ import ContaService from '../services/contaService.js';
 async function createConta(req, res) {
     const { numero, senha, tipo } = req.body;
     const id = req.user.id; 
+    
 
     try {
         const newConta = await ContaService.createConta(numero, senha, id, tipo);
